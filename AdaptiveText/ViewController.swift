@@ -17,6 +17,8 @@ class ViewController: UIViewController {
         textField.animationView = UIApplication.sharedApplication().windows.last
         textField2.animationView = view
         textView.animationView = view
+        
+        print("测试呢")
     }
 
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
