@@ -27,6 +27,13 @@ class AdaptiveTextField: UITextField {
             adaptiveText!.textField = self
         }
     }
+    
+    var targetView: UIView? {
+        didSet{
+            adaptiveText!.targetView = targetView
+        }
+    }
+    
 }
 
 
@@ -46,6 +53,12 @@ class AdaptiveTextView: UITextView {
             adaptiveText!.textView = self
         }
     }
+    
+    var targetView: UIView? {
+        didSet{
+            adaptiveText!.targetView = targetView
+        }
+    }
 }
 
 
@@ -55,7 +68,6 @@ class AdaptiveText: NSObject {
     
     /// 下面两个参数必须且只能赋值一个
     var textField: AdaptiveTextField?
-    
     var textView: AdaptiveTextView?
     
     /// 必传参数，弹出键盘时希望移动的视图，一般是self.view
@@ -67,6 +79,10 @@ class AdaptiveText: NSObject {
             NSNotificationCenter.defaultCenter().addObserver(self,selector: "keyboardWillChangeFrame:", name: UIKeyboardWillChangeFrameNotification, object: nil)
         }
     }
+    
+    /// 希望键盘顶部移动到的位置，不传则默认移动到输入框底部
+    var targetView: UIView?
+    
     
     func keyboardWillChangeFrame(noti: NSNotification) {
         
@@ -82,20 +98,24 @@ class AdaptiveText: NSObject {
         if isFirstResponder == false {
             return
         }
-
+        
         // 计算移动视图的距离
         let keyboardFrame = noti.userInfo![UIKeyboardFrameEndUserInfoKey]!.CGRectValue
         
-        var textRect: CGRect?
-
-        // 转换坐标系
-        if textField != nil {
-            textRect = textField!.convertRect(textField!.bounds, toView: animationView!)
+        var targetRect: CGRect?
+        
+        if targetView != nil{
+            targetRect = targetView!.convertRect(targetView!.bounds, toView: animationView!)
         }else{
-            textRect = textView!.convertRect(textView!.bounds, toView: animationView!)
+            
+            if textField != nil {
+                targetRect = textField!.convertRect(textField!.bounds, toView: animationView!)
+            }else{
+                targetRect = textView!.convertRect(textView!.bounds, toView: animationView!)
+            }
         }
         
-        let marginY = CGRectGetMaxY(textRect!) - keyboardFrame.origin.y + kMargin
+        let marginY = CGRectGetMaxY(targetRect!) - keyboardFrame.origin.y + kMargin
         
         UIView.animateWithDuration(0.25) { () -> Void in
             
